@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>脆爆文實驗室 · Threads Viral Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#17130f; --bg2:#1f1913; --panel:#241d16; --panel2:#2b2219;
+    --line:#3a2e22; --line2:#4a3a29;
+    --ink:#f3e9dc; --ink2:#c9b9a5; --ink3:#8f7f6d;
+    --ember:#ff6a2b; --ember2:#ffab5e; --gold:#e8b04b;
+    --good:#77b06b; --warn:#e0a13a; --bad:#d16a5a;
+    --radius:14px;
+    --serif:"Newsreader",serif;
+    --cjk-serif:"Noto Serif TC",serif;
+    --cjk:"Noto Sans TC",sans-serif;
+    --mono:"Space Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:var(--cjk);line-height:1.65;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(900px 500px at 82% -8%, rgba(255,106,43,.14), transparent 60%),
+      radial-gradient(700px 500px at -5% 8%, rgba(232,176,75,.08), transparent 55%),
+      var(--bg);
+    min-height:100vh;padding:0 0 80px;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:0 18px}
+
+  header.hero{padding:34px 0 20px;position:relative}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ember2);margin-bottom:10px}
+  h1.title{font-family:var(--cjk-serif);font-weight:900;font-size:clamp(30px,7vw,48px);line-height:1.05;letter-spacing:-.01em}
+  h1.title .en{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--ink2);display:block;font-size:clamp(15px,3.4vw,20px);letter-spacing:0;margin-top:8px}
+  .lede{color:var(--ink2);font-size:14px;margin-top:14px;max-width:620px}
+  .lede b{color:var(--gold);font-weight:700}
+
+  /* tabs */
+  nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;position:sticky;top:0;z-index:20;
+    background:linear-gradient(var(--bg) 70%,transparent);margin-top:14px;-webkit-overflow-scrolling:touch}
+  nav.tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:9px 15px;border:1px solid var(--line);border-radius:999px;background:var(--panel);
+    color:var(--ink3);font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.18s}
+  .tab:hover{color:var(--ink2);border-color:var(--line2)}
+  .tab.active{background:linear-gradient(135deg,var(--ember),var(--gold));color:#231407;border-color:transparent;font-weight:700;box-shadow:0 4px 18px rgba(255,106,43,.28)}
+
+  section.panel{display:none;animation:fade .35s ease}
+  section.panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-top:14px}
+  .card h2{font-family:var(--cjk-serif);font-weight:600;font-size:19px;margin-bottom:4px}
+  .card h2 .n{font-family:var(--mono);color:var(--ember);font-size:13px;margin-right:8px}
+  .card .sub{color:var(--ink3);font-size:12.5px;margin-bottom:12px}
+  .muted{color:var(--ink3);font-size:12.5px}
+  .src{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.02em}
+
+  .dimrow{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+  .dimrow:first-of-type{border-top:none}
+  .dimtag{font-family:var(--mono);font-size:10px;color:var(--gold);border:1px solid var(--line2);border-radius:6px;padding:2px 7px;flex:0 0 auto;margin-top:2px}
+  .dimrow .d-body{flex:1}
+  .dimrow b{font-weight:700;color:var(--ink)}
+  .dimrow p{font-size:13px;color:var(--ink2);margin-top:2px}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line2);color:var(--ink2);margin:3px 5px 3px 0}
+  .pill.hot{border-color:var(--ember);color:var(--ember2)}
+
+  label.fld{display:block;font-size:12.5px;color:var(--ink2);margin:12px 0 6px;font-weight:500}
+  input[type=text],input[type=number],textarea,select{
+    width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--ink);
+    font-family:var(--cjk);font-size:14px;padding:11px 12px;outline:none;transition:.15s}
+  textarea{resize:vertical;min-height:88px;line-height:1.6}
+  input:focus,textarea:focus,select:focus{border-color:var(--ember);box-shadow:0 0 0 3px rgba(255,106,43,.12)}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>*{flex:1;min-width:120px}
+
+  button.btn{appearance:none;border:none;cursor:pointer;font-family:var(--cjk);font-weight:700;font-size:14px;
+    padding:12px 18px;border-radius:11px;background:linear-gradient(135deg,var(--ember),var(--gold));color:#231407;
+    transition:.16s;box-shadow:0 4px 16px rgba(255,106,43,.25)}
+  button.btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(255,106,43,.36)}
+  button.btn:disabled{opacity:.5;cursor:wait;transform:none}
+  button.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink2);box-shadow:none;font-weight:500}
+  button.ghost:hover{border-color:var(--ember);color:var(--ember2);transform:none}
+  button.tiny{padding:6px 11px;font-size:12px;border-radius:8px}
+
+  /* score ring */
+  .score-wrap{display:flex;align-items:center;gap:16px;margin:6px 0 4px}
+  .ring{--v:0;width:70px;height:70px;border-radius:50%;flex:0 0 auto;position:relative;
+    background:conic-gradient(var(--ember) calc(var(--v)*1%), #2c231a 0);display:grid;place-items:center}
+  .ring::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--panel2)}
+  .ring b{position:relative;z-index:1;font-family:var(--mono);font-size:20px;font-weight:700;color:var(--ink)}
+  .score-label{font-size:13px;color:var(--ink2)}
+  .score-label .big{font-family:var(--cjk-serif);font-weight:600;font-size:16px;color:var(--ink);display:block}
+
+  .bar{height:7px;border-radius:4px;background:#2c231a;overflow:hidden;margin-top:5px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--ember),var(--gold));border-radius:4px;transition:width .5s}
+  .barline{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-top:10px}
+  .barline .v{font-family:var(--mono);color:var(--ink2);font-size:11px}
+
+  .sample{border:1px solid var(--line);border-radius:11px;padding:12px;margin-top:10px;background:var(--bg2)}
+  .sample .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:7px}
+  .sample .txt{font-size:13px;color:var(--ink2);white-space:pre-wrap;word-break:break-word;max-height:88px;overflow:hidden;position:relative}
+  .stat{font-family:var(--mono);font-size:11px;color:var(--ink2);background:#2c231a;border-radius:6px;padding:2px 8px}
+  .stat.v{color:var(--ember2)}
+
+  .variant{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;background:linear-gradient(180deg,var(--panel2),var(--panel))}
+  .variant .post{white-space:pre-wrap;font-size:14.5px;line-height:1.7;color:var(--ink)}
+  .variant .why{font-size:12px;color:var(--ink3);margin-top:9px;border-top:1px dashed var(--line2);padding-top:9px}
+  .variant .why b{color:var(--gold)}
+
+  .conf{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;display:inline-block}
+  .conf.low{background:rgba(209,106,90,.15);color:var(--bad)}
+  .conf.mid{background:rgba(224,161,58,.15);color:var(--warn)}
+  .conf.high{background:rgba(119,176,107,.15);color:var(--good)}
+
+  .empty{text-align:center;color:var(--ink3);padding:26px 10px;font-size:13px}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);
+    border:1px solid var(--line2);color:var(--ink);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;
+    transition:.3s;z-index:50;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(35,20,7,.35);border-top-color:#231407;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hr{height:1px;background:var(--line);margin:14px 0}
+  .note{font-size:12px;color:var(--ink3);background:var(--bg2);border-left:3px solid var(--gold);padding:9px 12px;border-radius:0 8px 8px 0;margin-top:12px;line-height:1.55}
+  a{color:var(--ember2)}
+  .flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="kicker">Taiwan Threads · Data-Grounded</div>
+    <h1 class="title">脆爆文實驗室<span class="en">A lab for engineering virality, not faking it.</span></h1>
+    <p class="lede">框架來自公開研究（QSearch 3,600 萬則貼文、Meta 官方排名機制、實戰復盤）。<b>演算法由你的真實樣本驅動</b>——貼文越多，權重越準，信心水準即時標示。上限 100 篇。</p>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="framework">框架</button>
+    <button class="tab" data-tab="bank">樣本銀行</button>
+    <button class="tab" data-tab="algo">演算法</button>
+    <button class="tab" data-tab="gen">產生器</button>
+    <button class="tab" data-tab="score">評分器</button>
+  </nav>
+
+  <!-- ========== FRAMEWORK ========== -->
+  <section class="panel active" id="framework">
+    <div class="card">
+      <h2><span class="n">01</span>爆文六維度</h2>
+      <div class="sub">評分器與產生器都以這六維為骨架。權重為研究預設值，樣本累積後由「演算法」分頁動態校正。</div>
+
+      <div class="dimrow"><span class="dimtag">30%</span><div class="d-body"><b>留言誘因</b><p>開放式提問／選邊站／徵求／接龍／標註朋友。留言權重遠高於讚，是演算法推播的最大指標。</p></div></div>
+      <div class="dimrow"><span class="dimtag">20%</span><div class="d-body"><b>鉤子（前兩行）</b><p>前 15–30 分鐘互動決定觸及，開頭必須短、有懸念或反差，讓人停下不滑掉。</p></div></div>
+      <div class="dimrow"><span class="dimtag">15%</span><div class="d-body"><b>情緒／觀點強度</b><p>中性敘述難擴散；帶明確情緒或立場（愛、氣、傻眼、我覺得）才會引爆討論。</p></div></div>
+      <div class="dimrow"><span class="dimtag">15%</span><div class="d-body"><b>內圈感（台灣限定）</b><p>「有台灣人在嗎」「拜託脆友」啟動在地凝聚力，讓陌生人也覺得「是自己人」。</p></div></div>
+      <div class="dimrow"><span class="dimtag">10%</span><div class="d-body"><b>反差／意外</b><p>文案 vs 畫面落差、突破常理，製造「我怎麼沒想到」的認知誤判。</p></div></div>
+      <div class="dimrow"><span class="dimtag">10%</span><div class="d-body"><b>碎裂化長度</b><p>捨長篇大論，走短、易讀、留白多的碎裂化觀察，留言空間大。</p></div></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">02</span>台灣兩大爆文類型</h2>
+      <div class="sub">頂尖爆文瀏覽可破 350 萬，多半落在這兩類。</div>
+      <div class="dimrow"><span class="dimtag">互助</span><div class="d-body"><b>脆友幫幫忙</b><p>台灣人熱心＋內圈感。行動門檻極低（順路、舉手之勞），幫忙成本低、情緒回報高，留言接龍自然滾大。</p></div></div>
+      <div class="dimrow"><span class="dimtag">反差</span><div class="d-body"><b>意想不到</b><p>畫面／文案強烈反差、突破常理的吃法或場景錯置，引兩派激辯，甚至名人來留言加溫。</p></div></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">03</span>發布時機（台灣獨有）</h2>
+      <div class="sub">和國際「週四早上 9 點」完全相反。</div>
+      <span class="pill hot">週四 20:00–21:00 黃金兩小時</span>
+      <span class="pill">週二／三 20:00–22:00</span>
+      <span class="pill">午間 12:00</span>
+      <span class="pill">週日 21:00 收心峰</span>
+      <div class="note">發文後前 15 分鐘若流量高於平均，是演算法在放大——此時再編輯加入 CTA／連結。前 2 小時逐則客製回留言，主動回覆的貼文 24 小時互動可高出約 2.3 倍。連結建議先不放、爆了再補或放留言區。</div>
+      <div class="src" style="margin-top:12px">來源：QSearch 2025 台灣 Threads 研究、Meta Threads Feed AI 官方說明、經理人／數位時代等實戰復盤。</div>
+    </div>
+  </section>
+
+  <!-- ========== BANK ========== -->
+  <section class="panel" id="bank">
+    <div class="card">
+      <h2><span class="n">01</span>新增真實樣本</h2>
+      <div class="sub">貼上你親自蒐集、有實際數據的貼文。這是演算法的唯一真實來源——不編造。上限 100 篇。</div>
+      <label class="fld">貼文連結（必填）</label>
+      <input type="text" id="s-url" placeholder="https://www.threads.net/@.../post/...">
+      <label class="fld">貼文全文（選填 — 沒有全文就無法算框架分數／算進演算法權重，只會留紀錄）</label>
+      <textarea id="s-text" placeholder="有空再回來貼上原文，分數會更準…（可留空）"></textarea>
+      <div class="row">
+        <div><label class="fld">瀏覽數</label><input type="number" id="s-views" placeholder="例：320000"></div>
+        <div><label class="fld">讚</label><input type="number" id="s-likes" placeholder="選填"></div>
+        <div><label class="fld">留言</label><input type="number" id="s-comments" placeholder="選填"></div>
+      </div>
+      <div class="row">
+        <div><label class="fld">類型</label>
+          <select id="s-genre">
+            <option value="互助">脆友幫幫忙（互助）</option>
+            <option value="反差">意想不到（反差）</option>
+            <option value="觀點">情緒觀點</option>
+            <option value="知識">知識乾貨</option>
+            <option value="故事">個人故事</option>
+            <option value="其他">其他</option>
+          </select></div>
+      </div>
+      <div class="note">只填連結能快速登記，但當下不會算框架分數——因為瀏覽器沒辦法從連結自動抓 Threads 內容（跨網域限制），這不是我能補的。要算分數，之後要回來手動補全文。</div>
+      <div style="margin-top:14px" class="flex-between">
+        <button class="btn" id="add-sample">＋ 加入樣本銀行</button>
+        <span class="muted" id="bank-count">0 / 100</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex-between">
+        <h2 style="margin:0"><span class="n">02</span>樣本銀行</h2>
+        <button class="ghost tiny" id="export-samples">匯出 JSON</button>
+      </div>
+      <div id="sample-list"></div>
+    </div>
+  </section>
+
+
+  <!-- ========== ALGO ========== -->
+  <section class="panel" id="algo">
+    <div class="card">
+      <div class="flex-between">
+        <h2 style="margin:0"><span class="n">01</span>自我更新演算法</h2>
+        <span class="conf low" id="conf-badge">無資料</span>
+      </div>
+      <div class="sub">從你的樣本反推：帶有某特徵時，平均瀏覽比不帶時高多少（提升倍率）。倍率越高＝該特徵越值得放進貼文。</div>
+      <div class="note" id="algo-note">目前用研究預設權重。加入至少 8 篇有瀏覽數的樣本後，這裡會改用你的真實資料重算，並依樣本數標示信心。</div>
+      <div id="algo-body"></div>
+    </div>
+  </section>
+
+  <!-- ========== GENERATOR ========== -->
+  <section class="panel" id="gen">
+    <div class="card">
+      <h2><span class="n">01</span>關鍵字產生器</h2>
+      <div class="sub">輸入關鍵字，用框架＋你樣本銀行的高分模式，生成 3 版可直接發的貼文並自動評分。</div>
+      <label class="fld">關鍵字 / 主題</label>
+      <input type="text" id="g-keyword" placeholder="例：租屋踩雷、通勤咖啡、轉職焦慮…">
+      <div class="row">
+        <div><label class="fld">走哪一類</label>
+          <select id="g-genre">
+            <option value="自動">自動（依關鍵字選最合適）</option>
+            <option value="互助">脆友幫幫忙（互助）</option>
+            <option value="反差">意想不到（反差）</option>
+            <option value="觀點">情緒觀點</option>
+            <option value="知識">知識乾貨</option>
+            <option value="故事">個人故事</option>
+          </select></div>
+        <div><label class="fld">語氣</label>
+          <select id="g-tone">
+            <option value="口語廢文">口語廢文感</option>
+            <option value="真誠告白">真誠告白</option>
+            <option value="犀利吐槽">犀利吐槽</option>
+            <option value="專業乾貨">專業但親切</option>
+          </select></div>
+      </div>
+      <div style="margin-top:14px"><button class="btn" id="gen-btn">產生 3 版貼文</button></div>
+      <div class="note">用 Claude（Sonnet）即時生成。生成的是草稿，發文前請自行事實查核與潤飾——工具負責框架，不負責替你保證真實性。</div>
+      <div class="note" style="border-color:var(--bad)">⚠️ 若這個檔案是自架網站（如 GitHub Pages）而非在 Claude.ai 裡開啟，這個按鈕會失敗：呼叫的 api.anthropic.com 需要金鑰與代理，只有 Claude.ai 的環境會自動處理，靜態網站沒有後端無法補這段。要在自架站上恢復這功能，需要另外架一個小後端幫你安全代打 Anthropic API。</div>
+      <div id="gen-out"></div>
+    </div>
+  </section>
+
+  <!-- ========== SCORER ========== -->
+  <section class="panel" id="score">
+    <div class="card">
+      <h2><span class="n">01</span>爆文潛力評分</h2>
+      <div class="sub">貼上草稿，依六維度算潛力分數並給具體修改建議。規則式即時運算，不需連線。</div>
+      <label class="fld">你的草稿</label>
+      <textarea id="sc-text" placeholder="貼上要評分的貼文…"></textarea>
+      <div style="margin-top:12px" class="flex-between">
+        <button class="btn" id="score-btn">評分</button>
+        <button class="ghost tiny" id="ai-critique-btn">＋ AI 深度診斷</button>
+      </div>
+      <div class="muted" style="margin-top:8px;font-size:11.5px">「評分」按鈕本地即時算，不需連線。「AI 深度診斷」跟產生器一樣呼叫 Claude API——自架網站（如 GitHub Pages）上會失敗，只有 Claude.ai 環境能用。</div>
+      <div id="score-out"></div>
+      <div id="ai-critique-out"></div>
+    </div>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+/* ============ Firebase 設定 — 換成你自己 Firebase 專案的值 ============ */
+/* Firebase Console → 專案設定 → 一般 → 「你的應用程式」→ SDK 設定與程式碼 */
+const firebaseConfig = {
+  apiKey: "AIzaSyDoJPxKj8apFiT6RjY-tFjy9nPS1hPU9Jo",
+  authDomain: "threads-viral-lab.firebaseapp.com",
+  projectId: "threads-viral-lab",
+  storageBucket: "threads-viral-lab.firebasestorage.app",
+  messagingSenderId: "826476300982",
+  appId: "1:826476300982:web:a50bc78a9b75c82157b417",
+  measurementId: "G-0W9QD6WYDC"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const samplesCol = collection(db, "samples");
+
+/* ============ storage & state ============ */
+let SAMPLES=[];
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+// 即時監聽 Firestore：任何人新增/刪除樣本，所有正在開這個頁面的人都會同步看到
+function loadSamples(){
+  const q = query(samplesCol, orderBy('createdAt','desc'), limit(100));
+  onSnapshot(q, snap=>{
+    SAMPLES = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    renderBank();renderAlgo();
+  }, err=>{
+    console.error(err);
+    toast('連不到資料庫，請確認 Firebase 設定與安全規則');
+  });
+}
+async function addSampleDoc(sample){
+  await addDoc(samplesCol, {...sample, createdAt: Date.now()});
+}
+async function deleteSampleDoc(id){
+  await deleteDoc(doc(db,"samples",id));
+}
+
+/* ============ tabs ============ */
+$$('.tab').forEach(t=>t.onclick=()=>{
+  $$('.tab').forEach(x=>x.classList.remove('active'));
+  $$('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  $('#'+t.dataset.tab).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ============ feature extraction ============ */
+const emojiRe=/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{1F000}-\u{1F02F}]/u;
+function feats(t){
+  const first=(t.split('\n')[0]||'').trim();
+  return {
+    comment: /[？?]/.test(t) || /(嗎|呢|如何|怎麼|哪一?|誰|多少|有沒有|要不要|該不該|你會|你們會|選|還是|求推薦|求救|拜託|幫忙|幫幫|徵求|跪求|標註|tag|留言告訴|底下留|留言區|接龍|\+1|補充)/i.test(t),
+    hook: first.length>0 && first.length<=24,
+    emotion: /(真的|超|爛|氣死|崩潰|太扯|誇張|受不了|傻眼|震驚|最|一定|絕對|我覺得|我認為|說真的|哭|笑死|靠|天啊|OMG)/.test(t) || (t.match(/！/g)||[]).length>0,
+    ingroup: /(台灣人?|脆友|我們|大家|各位|在嗎|有沒有人|同溫層)/.test(t),
+    contrast: /(沒想到|居然|竟然|結果|以為|原來|反差|意外|想不到|沒料到|沒在客氣|竟)/.test(t),
+    concise: t.length<=280,
+    len:t.length, firstLen:first.length
+  };
+}
+const DIMS=[
+  {k:'comment', label:'留言誘因', w:30},
+  {k:'hook', label:'鉤子（前兩行）', w:20},
+  {k:'emotion', label:'情緒／觀點', w:15},
+  {k:'ingroup', label:'內圈感', w:15},
+  {k:'contrast', label:'反差／意外', w:10},
+  {k:'concise', label:'碎裂化長度', w:10}
+];
+function scorePost(t){
+  const f=feats(t);
+  let total=0;const rows=[];
+  DIMS.forEach(d=>{
+    let sub;
+    if(d.k==='hook') sub = f.firstLen===0?0 : (f.firstLen<=24?1 : (f.firstLen<=40?0.5:0.15));
+    else if(d.k==='concise') sub = f.len<=200?1 : (f.len<=280?0.75 : (f.len<=500?0.4:0.15));
+    else sub = f[d.k]?1:0;
+    total += sub*d.w;
+    rows.push({label:d.label, pct:Math.round(sub*100), w:d.w});
+  });
+  return {total:Math.round(total), rows, f};
+}
+function tipsFor(sc){
+  const tips=[]; const f=sc.f;
+  if(!f.comment) tips.push('沒有留言誘因——結尾補一句提問／選邊站／徵求，例如「你會選 A 還是 B？」');
+  if(f.firstLen>24) tips.push('鉤子太長：把第一行砍到 24 字內，留懸念別把結論講完。');
+  if(f.firstLen===0) tips.push('第一行是空的：Threads 靠前兩行留人，別浪費開頭。');
+  if(!f.emotion) tips.push('太中性：加一個明確情緒或立場詞（傻眼／真的很…／我覺得）。');
+  if(!f.ingroup) tips.push('缺內圈感：若走互助類，加「有台灣人在嗎／拜託脆友」啟動在地凝聚。');
+  if(!f.contrast) tips.push('沒有反差：想想有沒有「以為 X 結果 Y」的落差可放大。');
+  if(f.len>280) tips.push('太長了：Threads 吃碎裂化短文，砍到 280 字內、多留白。');
+  if(tips.length===0) tips.push('六維都到位，這是一則結構完整的草稿——剩下的看題材本身夠不夠新鮮。');
+  return tips;
+}
+
+/* ============ sample bank ============ */
+$('#add-sample').onclick=async()=>{
+  const url=$('#s-url').value.trim();
+  const text=$('#s-text').value.trim();
+  if(!url){toast('請至少貼上貼文連結');return;}
+  if(SAMPLES.length>=100){toast('已達 100 篇上限，請先刪除舊樣本');return;}
+  const views=parseInt($('#s-views').value)||null;
+  const btn=$('#add-sample');btn.disabled=true;
+  try{
+    await addSampleDoc({
+      url, text, views,
+      likes:parseInt($('#s-likes').value)||null,
+      comments:parseInt($('#s-comments').value)||null,
+      genre:$('#s-genre').value
+    });
+    $('#s-text').value=$('#s-views').value=$('#s-likes').value=$('#s-comments').value=$('#s-url').value='';
+    toast(text?'已加入（含全文，會算進演算法）':'已加入（僅連結，之後補全文才會算分）');
+  }catch(e){
+    toast('新增失敗：'+(e.message||e));
+  }finally{btn.disabled=false;}
+};
+$('#export-samples').onclick=()=>{
+  if(!SAMPLES.length){toast('目前沒有樣本');return;}
+  const blob=new Blob([JSON.stringify(SAMPLES,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='threads-samples.json';a.click();
+};
+function renderBank(){
+  $('#bank-count').textContent=SAMPLES.length+' / 100';
+  const list=$('#sample-list');
+  if(!SAMPLES.length){list.innerHTML='<div class="empty">還沒有樣本。<br>貼上你蒐集到的真實爆文，演算法才有東西可學。</div>';return;}
+  list.innerHTML=SAMPLES.map(s=>{
+    const v=s.views?fmt(s.views):'—';
+    const hasText = !!(s.text&&s.text.trim());
+    const sc = hasText?scorePost(s.text).total:null;
+    return `<div class="sample">
+      <div class="meta">
+        <span class="stat v">👁 ${v}</span>
+        ${s.likes?`<span class="stat">♥ ${fmt(s.likes)}</span>`:''}
+        ${s.comments?`<span class="stat">💬 ${fmt(s.comments)}</span>`:''}
+        <span class="pill">${s.genre}</span>
+        <span class="stat">框架分 ${sc!==null?sc:'—（未附全文）'}</span>
+        <span style="margin-left:auto"><button class="ghost tiny" onclick="delSample('${s.id}')">刪除</button></span>
+      </div>
+      ${s.url?`<div style="margin-bottom:6px"><a href="${esc(s.url)}" target="_blank" rel="noopener" class="src">${esc(s.url)}</a></div>`:''}
+      <div class="txt">${hasText?esc(s.text):'<span class="muted">（尚未附全文）</span>'}</div>
+    </div>`;
+  }).join('');
+}
+window.delSample=async id=>{
+  try{ await deleteSampleDoc(id); toast('已刪除'); }
+  catch(e){ toast('刪除失敗：'+(e.message||e)); }
+};
+function fmt(n){return n>=10000?(n/10000).toFixed(n>=100000?0:1)+'萬':n.toLocaleString();}
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+/* ============ algorithm (data-driven weights) ============ */
+function renderAlgo(){
+  const withV=SAMPLES.filter(s=>s.views&&s.views>0&&s.text&&s.text.trim());
+  const n=withV.length;
+  const linkOnly=SAMPLES.filter(s=>!(s.text&&s.text.trim())).length;
+  const badge=$('#conf-badge'), note=$('#algo-note'), body=$('#algo-body');
+  let conf,cls;
+  if(n<8){conf='資料不足（'+n+'/8）';cls='low';}
+  else if(n<20){conf='低信心 n='+n;cls='low';}
+  else if(n<50){conf='中信心 n='+n;cls='mid';}
+  else{conf='高信心 n='+n;cls='high';}
+  badge.textContent=conf;badge.className='conf '+cls;
+
+  const linkOnlyNote = linkOnly?`（另有 ${linkOnly} 篇僅連結、未附全文，不計入以下計算）`:'';
+
+  if(n<8){
+    note.style.display='block';
+    note.textContent='目前用研究預設權重（留言 30 / 鉤子 20 / 情緒 15 / 內圈 15 / 反差 10 / 長度 10）。加入至少 8 篇「有瀏覽數＋有全文」的樣本後，改用你的真實資料重算，並依樣本數標示信心。'+linkOnlyNote;
+    body.innerHTML=DIMS.map(d=>`
+      <div class="barline"><span>${d.label}</span><span class="v">預設 ${d.w}%</span></div>
+      <div class="bar"><i style="width:${d.w/30*100}%"></i></div>`).join('');
+    return;
+  }
+  note.style.display='none';
+  const rows=DIMS.map(d=>{
+    const on=withV.filter(s=>{const f=feats(s.text);return d.k==='hook'?f.firstLen<=24:(d.k==='concise'?f.len<=280:f[d.k]);});
+    const off=withV.filter(s=>!on.includes(s));
+    const avg=a=>a.length?a.reduce((x,s)=>x+s.views,0)/a.length:0;
+    const aon=avg(on),aoff=avg(off);
+    const lift = (aon&&aoff)?(aon/aoff):(aon&&!off.length?1:0);
+    return {label:d.label,k:d.k,lift,onN:on.length,aon,aoff};
+  }).sort((a,b)=>b.lift-a.lift);
+  const maxLift=Math.max(...rows.map(r=>r.lift),1.2);
+  body.innerHTML = `<div class="muted" style="margin-bottom:8px">依你 ${n} 篇「有瀏覽數＋有全文」的樣本重算${linkOnlyNote}，倍率＝帶此特徵的平均瀏覽 ÷ 不帶的平均瀏覽：</div>` +
+    rows.map(r=>{
+      const liftTxt = r.aoff?('×'+r.lift.toFixed(2)):'（樣本都帶此特徵）';
+      const good=r.lift>=1.15, bad=r.lift<0.9&&r.aoff;
+      return `<div class="barline"><span>${r.label} <span class="muted">(${r.onN} 篇帶)</span></span>
+        <span class="v" style="color:${good?'var(--good)':bad?'var(--bad)':'var(--ink2)'}">${liftTxt}</span></div>
+        <div class="bar"><i style="width:${Math.min(r.lift/maxLift*100,100)}%"></i></div>`;
+    }).join('') +
+    `<div class="note">讀法：倍率 &gt; 1.15（綠）代表你的高瀏覽貼文明顯偏好這個特徵，值得多用；&lt; 0.9（紅）代表反而拖累。樣本越多越可信——現在是「${conf}」，別過度解讀單一數字。</div>`;
+}
+
+/* ============ top patterns for generator ============ */
+function topPatterns(){
+  const withV=SAMPLES.filter(s=>s.views&&s.views>0&&s.text&&s.text.trim());
+  if(withV.length<8) return null;
+  const feat=[];
+  DIMS.forEach(d=>{
+    const on=withV.filter(s=>{const f=feats(s.text);return d.k==='hook'?f.firstLen<=24:(d.k==='concise'?f.len<=280:f[d.k]);});
+    const off=withV.filter(s=>!on.includes(s));
+    const avg=a=>a.length?a.reduce((x,s)=>x+s.views,0)/a.length:0;
+    const lift=avg(off)?avg(on)/avg(off):1;
+    if(lift>=1.1&&on.length) feat.push(d.label+'（×'+lift.toFixed(2)+'）');
+  });
+  const topGenre=(()=>{const g={};withV.forEach(s=>{g[s.genre]=(g[s.genre]||0)+s.views;});
+    return Object.entries(g).sort((a,b)=>b[1]-a[1])[0]?.[0];})();
+  return {feat,topGenre,n:withV.length};
+}
+
+/* ============ Claude API ============ */
+async function callClaude(userPrompt,system){
+  const res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,
+      system:system,messages:[{role:"user",content:userPrompt}]})
+  });
+  const data=await res.json();
+  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+}
+
+/* ============ generator ============ */
+$('#gen-btn').onclick=async()=>{
+  const kw=$('#g-keyword').value.trim();
+  if(!kw){toast('請先輸入關鍵字');return;}
+  const btn=$('#gen-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>生成中…';
+  const out=$('#gen-out');out.innerHTML='';
+  const genre=$('#g-genre').value, tone=$('#g-tone').value;
+  const tp=topPatterns();
+  const patternLine = tp
+    ? `使用者自有 ${tp.n} 篇高瀏覽樣本，最有效的特徵是：${tp.feat.join('、')||'（尚不明顯）'}；表現最好的類型是「${tp.topGenre}」。請優先套用這些。`
+    : `使用者樣本不足，使用研究預設：留言誘因最重要，其次是鉤子與情緒觀點。`;
+  const sys=`你是台灣 Threads（脆）爆文寫手。嚴格遵守以下框架：
+1. 前兩行必須是強鉤子（懸念或反差），第一行 24 字內。
+2. 一定要有留言誘因：開放式提問／選邊站／徵求／接龍／標註。留言權重遠高於讚。
+3. 帶明確情緒或觀點，不要中性。
+4. 走碎裂化短文，全文 280 字內，多留白換行。
+5. 台灣口語，可用在地梗與「內圈感」（如「有台灣人在嗎」「脆友」）。
+6. 不要用 hashtag 堆砌、不要業配感、不要浮誇 emoji（至多 1-2 個）。
+${patternLine}
+只輸出 JSON，不要任何前後說明或 markdown，格式：
+{"variants":[{"post":"貼文全文（含換行用\\n）","angle":"這版切入角度一句話","why":"為何符合框架一句話"}]}
+產生剛好 3 版，角度要明顯不同。`;
+  const usr=`關鍵字/主題：「${kw}」。類型：${genre==='自動'?'你依關鍵字選最合適的':genre}。語氣：${tone}。請產生 3 版繁體中文 Threads 貼文。`;
+  try{
+    let raw=await callClaude(usr,sys);
+    raw=raw.replace(/```json|```/g,'').trim();
+    const m=raw.match(/\{[\s\S]*\}/); if(m) raw=m[0];
+    const parsed=JSON.parse(raw);
+    out.innerHTML=(parsed.variants||[]).map((v,i)=>{
+      const sc=scorePost(v.post||'');
+      return `<div class="variant">
+        <div class="flex-between" style="margin-bottom:8px">
+          <span class="pill hot">版本 ${i+1}${v.angle?' · '+esc(v.angle):''}</span>
+          <span class="stat v">爆文分 ${sc.total}</span>
+        </div>
+        <div class="post">${esc(v.post||'')}</div>
+        ${v.why?`<div class="why"><b>為何有效：</b>${esc(v.why)}</div>`:''}
+        <div style="margin-top:10px"><button class="ghost tiny" onclick="copyText(this)" data-t="${encodeURIComponent(v.post||'')}">複製</button></div>
+      </div>`;
+    }).join('');
+    if(!parsed.variants||!parsed.variants.length) out.innerHTML='<div class="note">生成結果解析失敗，請再試一次或換個關鍵字。</div>';
+  }catch(e){
+    out.innerHTML='<div class="note">生成失敗（'+esc(String(e.message||e))+'）。請再試一次。</div>';
+  }finally{btn.disabled=false;btn.textContent='產生 3 版貼文';}
+};
+window.copyText=el=>{navigator.clipboard.writeText(decodeURIComponent(el.dataset.t)).then(()=>toast('已複製'));};
+
+/* ============ scorer ============ */
+$('#score-btn').onclick=()=>{
+  const t=$('#sc-text').value.trim();
+  if(!t){toast('請先貼上草稿');return;}
+  const sc=scorePost(t);
+  const grade = sc.total>=80?'極可能爆':sc.total>=65?'有潛力':sc.total>=45?'中等，需補強':'結構偏弱';
+  $('#ai-critique-out').innerHTML='';
+  $('#score-out').innerHTML=`
+    <div class="hr"></div>
+    <div class="score-wrap">
+      <div class="ring" style="--v:${sc.total}"><b>${sc.total}</b></div>
+      <div class="score-label"><span class="big">${grade}</span>爆文潛力分數（滿分 100，規則式）</div>
+    </div>
+    ${sc.rows.map(r=>`<div class="barline"><span>${r.label} <span class="muted">(權重 ${r.w})</span></span><span class="v">${r.pct}%</span></div><div class="bar"><i style="width:${r.pct}%"></i></div>`).join('')}
+    <div class="hr"></div>
+    <div style="font-size:13px"><b style="color:var(--gold)">修改建議</b><ul style="margin:8px 0 0 18px;font-size:13px;color:var(--ink2)">${tipsFor(sc).map(x=>`<li style="margin:5px 0">${esc(x)}</li>`).join('')}</ul></div>`;
+};
+$('#ai-critique-btn').onclick=async()=>{
+  const t=$('#sc-text').value.trim();
+  if(!t){toast('請先貼上草稿');return;}
+  const btn=$('#ai-critique-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>診斷中';
+  const o=$('#ai-critique-out');o.innerHTML='';
+  const sys=`你是台灣 Threads 爆文教練。針對使用者的貼文草稿，用繁體中文給犀利但具體的診斷：
+指出最致命的 1-2 個問題，並各給一個可直接照用的改寫範例。控制在 150 字內，不要客套。`;
+  try{
+    const r=await callClaude('草稿：\n'+t,sys);
+    o.innerHTML=`<div class="note" style="border-color:var(--ember)"><b style="color:var(--ember2)">AI 深度診斷</b><br>${esc(r).replace(/\n/g,'<br>')}</div>`;
+  }catch(e){o.innerHTML='<div class="note">診斷失敗，請再試一次。</div>';}
+  finally{btn.disabled=false;btn.textContent='＋ AI 深度診斷';}
+};
+
+/* ============ boot ============ */
+loadSamples();
+
+</script>
+</body>
+</html>
