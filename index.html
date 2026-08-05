@@ -67,7 +67,7 @@
 
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:16px;box-shadow:0 1px 2px rgba(28,25,18,.03)}
   .card h2{font-family:var(--cjk-serif);font-weight:700;font-size:17px;margin-bottom:5px;letter-spacing:-.01em;color:var(--ink)}
-  .card h2 .n{font-family:var(--mono);color:#fff;background:var(--ember);font-size:11px;font-weight:700;margin-right:9px;padding:3px 8px;border-radius:var(--radius-sm)}
+  .card h2 .n{font-family:var(--mono);color:var(--ember2);background:#fff0e6;font-size:11px;font-weight:700;margin-right:9px;padding:3px 8px;border-radius:var(--radius-sm)}
   .card .sub{color:var(--ink3);font-size:12.5px;margin-bottom:14px;line-height:1.6}
   .muted{color:var(--ink3);font-size:12.5px}
   .src{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.01em}
@@ -91,8 +91,9 @@
   .dimcard p{font-size:12.5px;color:var(--ink2);line-height:1.6;margin-top:5px;position:relative;z-index:1}
   @media (max-width:600px){.dimgrid{grid-template-columns:1fr}}
 
-  .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:4px 11px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--ink2);margin:3px 5px 3px 0}
-  .pill.hot{background:#fff0e6;border-color:#ffd9c2;color:var(--ember2);font-weight:600}
+  .pill{display:inline-block;font-family:var(--cjk);font-weight:600;font-size:11.5px;padding:4px 11px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--ink2);margin:3px 5px 3px 0}
+  .pill.hot{background:#fff0e6;border-color:#ffd9c2;color:var(--ember2);font-weight:700}
+  .pill.genre{background:#f1eef8;border-color:#dcd4ee;color:#5b4d94}
 
   label.fld{display:block;font-size:12.5px;color:var(--ink2);margin:14px 0 6px;font-weight:600}
   input[type=text],input[type=number],textarea,select{
@@ -126,11 +127,23 @@
   .barline{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-top:11px}
   .barline .v{font-family:var(--mono);color:var(--ink2);font-size:11px}
 
-  .sample{border:1px solid var(--line);border-radius:var(--radius-md);padding:14px;margin-top:11px;background:var(--panel2)}
+  .sample{border:1px solid var(--line);border-radius:var(--radius-md);padding:14px;margin-top:11px;background:var(--panel2);transition:.15s}
+  .sample:hover{border-color:var(--line2);box-shadow:0 2px 10px rgba(28,25,18,.05)}
   .sample .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
   .sample .txt{font-size:13px;color:var(--ink2);white-space:pre-wrap;word-break:break-word;max-height:88px;overflow:hidden;position:relative}
-  .stat{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink2);background:var(--bg2);border-radius:var(--radius-sm);padding:3px 9px}
+  .stat{font-family:var(--cjk);font-size:11.5px;font-weight:600;color:var(--ink2);background:var(--bg2);border-radius:var(--radius-sm);padding:4px 10px;white-space:nowrap}
+  .stat.hi{color:var(--ember2);background:#fff0e6}
   .stat.v{color:var(--ember2);background:#fff0e6;font-weight:600}
+  .stat.tier-good{color:var(--good);background:#e8f6ee}
+  .stat.tier-mid{color:var(--warn);background:#fdf3e0}
+  .stat.tier-low{color:var(--bad);background:#fdeceb}
+
+  .insight-bar{display:flex;flex-wrap:wrap;gap:0;margin-bottom:14px;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden}
+  .insight-item{flex:1 1 120px;padding:12px 14px;border-left:1px solid var(--line)}
+  .insight-item:first-child{border-left:none}
+  .insight-item b{display:block;font-family:var(--cjk);font-size:19px;font-weight:800;color:var(--ink);line-height:1.2}
+  .insight-item span{font-size:11px;color:var(--ink3)}
+  .insight-line{font-size:12px;color:var(--ember2);background:#fff8f2;border-radius:var(--radius-sm);padding:7px 10px;margin-top:9px;line-height:1.5}
 
   .variant{border:1px solid var(--line);border-radius:var(--radius-md);padding:16px;margin-top:13px;background:var(--panel);box-shadow:0 1px 3px rgba(28,25,18,.04)}
   .variant .post{white-space:pre-wrap;font-size:14.5px;line-height:1.75;color:var(--ink)}
@@ -151,6 +164,8 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   .hr{height:1px;background:var(--line);margin:16px 0}
   .note{font-size:12px;color:var(--ink2);background:var(--bg2);border-left:3px solid var(--ember);padding:10px 13px;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-top:13px;line-height:1.6}
+  .edit-banner{font-size:12.5px;color:#8a4a00;background:#fff3e0;border:1px solid #ffd9a0;border-radius:var(--radius-md);padding:10px 13px;margin-top:12px;line-height:1.5}
+  .charcount{font-size:11px;color:var(--ink3);text-align:right;margin-top:4px}
   a{color:var(--ember2);text-underline-offset:2px}
   .flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 
@@ -228,17 +243,19 @@
   <!-- ========== BANK ========== -->
   <section class="panel" id="bank" role="tabpanel" aria-labelledby="tabbtn-bank">
     <div class="card">
-      <h2><span class="n">01</span>新增真實樣本</h2>
+      <h2 id="bank-form-title"><span class="n">01</span>新增真實樣本</h2>
       <div class="sub">貼上你親自蒐集、有實際數據的貼文。這是演算法的唯一真實來源——不編造。上限 100 篇。</div>
+      <div id="edit-banner" class="edit-banner" style="display:none">✏️ 正在編輯這篇樣本，改完按「更新樣本」儲存，或按右邊取消。</div>
       <label class="fld" for="s-url">貼文連結（必填）</label>
       <input type="text" id="s-url" placeholder="https://www.threads.net/@.../post/...">
       <label class="fld" for="s-text">貼文全文（選填 — 沒有全文就無法算框架分數／算進演算法權重，只會留紀錄）</label>
-      <textarea id="s-text" placeholder="有空再回來貼上原文，分數會更準…（可留空）"></textarea>
+      <textarea id="s-text" placeholder="有空再回來貼上原文，分數會更準…（可留空）" maxlength="2000"></textarea>
+      <div class="charcount"><span id="s-text-count">0</span> 字（框架建議 280 字內）</div>
       <div class="row">
-        <div><label class="fld" for="s-views">瀏覽數</label><input type="number" id="s-views" placeholder="例：320000"></div>
-        <div><label class="fld" for="s-likes">讚</label><input type="number" id="s-likes" placeholder="選填"></div>
-        <div><label class="fld" for="s-comments">留言</label><input type="number" id="s-comments" placeholder="選填"></div>
-        <div><label class="fld" for="s-reposts">轉發</label><input type="number" id="s-reposts" placeholder="選填"></div>
+        <div><label class="fld" for="s-views">瀏覽數</label><input type="number" id="s-views" placeholder="例：320000" min="0" inputmode="numeric"></div>
+        <div><label class="fld" for="s-likes">讚</label><input type="number" id="s-likes" placeholder="選填" min="0" inputmode="numeric"></div>
+        <div><label class="fld" for="s-comments">留言</label><input type="number" id="s-comments" placeholder="選填" min="0" inputmode="numeric"></div>
+        <div><label class="fld" for="s-reposts">轉發</label><input type="number" id="s-reposts" placeholder="選填" min="0" inputmode="numeric"></div>
       </div>
       <div class="row">
         <div><label class="fld" for="s-genre">類型</label>
@@ -253,7 +270,10 @@
       </div>
       <div class="note">只填連結能快速登記，但當下不會算框架分數——因為瀏覽器沒辦法從連結自動抓 Threads 內容（跨網域限制），這不是我能補的。要算分數，之後要回來手動補全文。</div>
       <div style="margin-top:14px" class="flex-between">
-        <button class="btn" id="add-sample">＋ 加入樣本銀行</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="add-sample">＋ 加入樣本銀行</button>
+          <button class="ghost" id="cancel-edit" style="display:none">取消編輯</button>
+        </div>
         <span class="muted" id="bank-count">0 / 100</span>
       </div>
     </div>
@@ -263,6 +283,7 @@
         <h2 style="margin:0"><span class="n">02</span>樣本銀行</h2>
         <button class="ghost tiny" id="export-samples">匯出 JSON</button>
       </div>
+      <div id="bank-summary"></div>
       <div id="sample-list"></div>
     </div>
   </section>
@@ -337,7 +358,8 @@
 <script type="module">
 /* ============ shared state (available immediately, no Firebase dependency) ============ */
 let SAMPLES=[];
-let fbAdd=null, fbDelete=null, fbReady=false;
+let fbAdd=null, fbUpdate=null, fbDelete=null, fbReady=false;
+let editingId=null;
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
 
@@ -348,7 +370,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
 (async()=>{
   try{
     const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js");
-    const { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit } =
+    const { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit } =
       await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js");
 
     /* 換成你自己 Firebase 專案的值：Firebase Console → 專案設定 → 一般 → 你的應用程式 */
@@ -366,6 +388,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
     const samplesCol = collection(db, "samples");
 
     fbAdd = sample => addDoc(samplesCol, {...sample, createdAt: Date.now()});
+    fbUpdate = (id, sample) => updateDoc(doc(db,"samples",id), sample);
     fbDelete = id => deleteDoc(doc(db,"samples",id));
 
     // 即時監聽：任何人新增/刪除樣本，所有正在開這個頁面的人都會同步看到
@@ -445,28 +468,71 @@ function tipsFor(sc){
 }
 
 /* ============ sample bank ============ */
+function resetForm(){
+  $('#s-text').value=$('#s-views').value=$('#s-likes').value=$('#s-comments').value=$('#s-reposts').value=$('#s-url').value='';
+  $('#s-genre').value='互助';
+  $('#s-text-count').textContent='0';
+  editingId=null;
+  $('#bank-form-title').innerHTML='<span class="n">01</span>新增真實樣本';
+  $('#add-sample').textContent='＋ 加入樣本銀行';
+  $('#cancel-edit').style.display='none';
+  $('#edit-banner').style.display='none';
+}
+$('#s-text').addEventListener('input',()=>{ $('#s-text-count').textContent=$('#s-text').value.length; });
+
 $('#add-sample').onclick=async()=>{
   const url=$('#s-url').value.trim();
   const text=$('#s-text').value.trim();
   if(!url){toast('請至少貼上貼文連結');return;}
   if(!fbAdd){toast('資料庫尚未連線，請稍等或重新整理頁面再試');return;}
-  if(SAMPLES.length>=100){toast('已達 100 篇上限，請先刪除舊樣本');return;}
+  if(!editingId && SAMPLES.length>=100){toast('已達 100 篇上限，請先刪除舊樣本');return;}
   const views=parseInt($('#s-views').value)||null;
+  const payload={
+    url, text, views,
+    likes:parseInt($('#s-likes').value)||null,
+    comments:parseInt($('#s-comments').value)||null,
+    reposts:parseInt($('#s-reposts').value)||null,
+    genre:$('#s-genre').value
+  };
   const btn=$('#add-sample');btn.disabled=true;
   try{
-    await fbAdd({
-      url, text, views,
-      likes:parseInt($('#s-likes').value)||null,
-      comments:parseInt($('#s-comments').value)||null,
-      reposts:parseInt($('#s-reposts').value)||null,
-      genre:$('#s-genre').value
-    });
-    $('#s-text').value=$('#s-views').value=$('#s-likes').value=$('#s-comments').value=$('#s-reposts').value=$('#s-url').value='';
-    toast(text?'已加入（含全文，會算進演算法）':'已加入（僅連結，之後補全文才會算分）');
+    if(editingId){
+      if(!fbUpdate){toast('資料庫尚未連線，請稍等或重新整理頁面再試');btn.disabled=false;return;}
+      await fbUpdate(editingId, payload);
+      toast('已更新這篇樣本');
+      resetForm();
+    }else{
+      await fbAdd(payload);
+      $('#s-text').value=$('#s-views').value=$('#s-likes').value=$('#s-comments').value=$('#s-reposts').value=$('#s-url').value='';
+      $('#s-text-count').textContent='0';
+      toast(text?'已加入（含全文，會算進演算法）':'已加入（僅連結，之後補全文才會算分）');
+    }
   }catch(e){
-    toast('新增失敗：'+(e.message||e));
+    toast((editingId?'更新失敗：':'新增失敗：')+(e.message||e));
   }finally{btn.disabled=false;}
 };
+$('#cancel-edit').onclick=()=>{ resetForm(); toast('已取消編輯'); };
+
+window.editSample=id=>{
+  const s=SAMPLES.find(x=>x.id===id);
+  if(!s){toast('找不到這筆樣本，可能剛被刪除或還在同步中');return;}
+  editingId=id;
+  $('#s-url').value=s.url||'';
+  $('#s-text').value=s.text||'';
+  $('#s-text-count').textContent=(s.text||'').length;
+  $('#s-views').value=s.views??'';
+  $('#s-likes').value=s.likes??'';
+  $('#s-comments').value=s.comments??'';
+  $('#s-reposts').value=s.reposts??'';
+  $('#s-genre').value=s.genre||'互助';
+  $('#bank-form-title').innerHTML='<span class="n">01</span>編輯樣本';
+  $('#add-sample').textContent='更新樣本';
+  $('#cancel-edit').style.display='inline-flex';
+  $('#edit-banner').style.display='block';
+  $('#s-url').scrollIntoView({behavior:'smooth',block:'center'});
+  $('#s-url').focus();
+};
+
 $('#export-samples').onclick=()=>{
   if(!SAMPLES.length){toast('目前沒有樣本');return;}
   const blob=new Blob([JSON.stringify(SAMPLES,null,2)],{type:'application/json'});
@@ -475,12 +541,31 @@ $('#export-samples').onclick=()=>{
 function renderBank(){
   $('#bank-count').textContent=SAMPLES.length+' / 100';
   const list=$('#sample-list');
+  const summary=$('#bank-summary');
   if(!SAMPLES.length){
     list.innerHTML = fbReady
       ? '<div class="empty">還沒有樣本。<br>貼上你蒐集到的真實爆文，演算法才有東西可學。</div>'
       : '<div class="empty">連線資料庫中…如果這裡一直沒變化，可能是網路擋住了 Firebase，或安全規則還沒設定。</div>';
+    if(summary) summary.innerHTML='';
     return;
   }
+
+  // 頂部彙總 insight：從目前所有樣本即時算出來，不是固定文案
+  if(summary){
+    const withV=SAMPLES.filter(s=>s.views>0);
+    const avgEng=(()=>{const vals=withV.map(s=>{const sum=(s.likes||0)+(s.comments||0)+(s.reposts||0);return sum?sum/s.views*100:null;}).filter(x=>x!==null);
+      return vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length):null;})();
+    const withText=SAMPLES.filter(s=>s.text&&s.text.trim());
+    const topGenre=(()=>{const g={};withV.forEach(s=>{g[s.genre]=(g[s.genre]||0)+s.views;});
+      const arr=Object.entries(g).sort((a,b)=>b[1]-a[1]);return arr[0]?arr[0][0]:null;})();
+    summary.innerHTML=`<div class="insight-bar">
+      <div class="insight-item"><b>${SAMPLES.length}</b><span>篇樣本</span></div>
+      <div class="insight-item"><b>${withText.length}</b><span>篇有全文（會算進演算法）</span></div>
+      <div class="insight-item"><b>${avgEng!==null?avgEng.toFixed(1)+'%':'—'}</b><span>平均互動率</span></div>
+      <div class="insight-item"><b>${topGenre||'—'}</b><span>目前瀏覽量最高的類型</span></div>
+    </div>`;
+  }
+
   list.innerHTML=SAMPLES.map(s=>{
     const v=s.views?fmt(s.views):'—';
     const hasViews=!!(s.views&&s.views>0);
@@ -490,34 +575,57 @@ function renderBank(){
     const engR=(hasViews&&engSum)?(engSum/s.views*100):null;
     const engagementHtml = hasViews
       ? [
-          likeR!==null?`<span class="stat">♥ ${likeR.toFixed(1)}%</span>`:'',
-          cmtR!==null?`<span class="stat">💬 ${cmtR.toFixed(1)}%</span>`:'',
-          rpR!==null?`<span class="stat">🔁 ${rpR.toFixed(1)}%</span>`:'',
-          engR!==null?`<span class="stat v">⚡ 互動率 ${engR.toFixed(1)}%</span>`:''
+          likeR!==null?`<span class="stat" title="讚 ÷ 瀏覽">讚率 ${likeR.toFixed(1)}%</span>`:'',
+          cmtR!==null?`<span class="stat" title="留言 ÷ 瀏覽">留言率 ${cmtR.toFixed(1)}%</span>`:'',
+          rpR!==null?`<span class="stat" title="轉發 ÷ 瀏覽">轉發率 ${rpR.toFixed(1)}%</span>`:'',
+          engR!==null?`<span class="stat hi" title="(讚+留言+轉發) ÷ 瀏覽">互動率 ${engR.toFixed(1)}%</span>`:''
         ].join('')
       : [
-          s.likes?`<span class="stat">♥ ${fmt(s.likes)}</span>`:'',
-          s.comments?`<span class="stat">💬 ${fmt(s.comments)}</span>`:'',
-          s.reposts?`<span class="stat">🔁 ${fmt(s.reposts)}</span>`:''
+          s.likes?`<span class="stat">讚 ${fmt(s.likes)}</span>`:'',
+          s.comments?`<span class="stat">留言 ${fmt(s.comments)}</span>`:'',
+          s.reposts?`<span class="stat">轉發 ${fmt(s.reposts)}</span>`:''
         ].join('');
     const hasText = !!(s.text&&s.text.trim());
-    const sc = hasText?scorePost(s.text).total:null;
+    const scObj = hasText?scorePost(s.text):null;
+    const sc = scObj?scObj.total:null;
+    const scTier = sc===null?'':(sc>=80?'good':sc>=50?'mid':'low');
+    const scLabel = sc===null?'未附全文':(sc+' 分');
+    let insightLine='';
+    if(scObj){
+      const sorted=[...scObj.rows].sort((a,b)=>b.pct-a.pct);
+      const strong=sorted.filter(r=>r.pct>=75).slice(0,2).map(r=>r.label);
+      const weak=sorted.filter(r=>r.pct<40).slice(0,2).map(r=>r.label);
+      const parts=[];
+      if(strong.length) parts.push(`強項：${strong.join('、')}`);
+      if(weak.length) parts.push(`待加強：${weak.join('、')}`);
+      if(parts.length) insightLine=`<div class="insight-line">💡 ${parts.join('　')}</div>`;
+    }
     return `<div class="sample">
       <div class="meta">
-        <span class="stat v">👁 ${v}</span>
+        <span class="stat hi" title="瀏覽次數">瀏覽 ${v}</span>
         ${engagementHtml}
-        <span class="pill">${s.genre}</span>
-        <span class="stat">框架分 ${sc!==null?sc:'—（未附全文）'}</span>
-        <span style="margin-left:auto"><button class="ghost tiny" onclick="delSample('${s.id}')">刪除</button></span>
+        <span class="pill genre">類型：${s.genre}</span>
+        <span class="stat tier-${scTier}" title="依六維度框架算出，滿分 100">框架分 ${scLabel}</span>
+        <span style="margin-left:auto;display:flex;gap:6px">
+          ${hasText?`<button class="ghost tiny" onclick="copyText(this)" data-t="${encodeURIComponent(s.text)}">複製</button>`:''}
+          <button class="ghost tiny" onclick="editSample('${s.id}')">編輯</button>
+          <button class="ghost tiny" onclick="delSample('${s.id}')">刪除</button>
+        </span>
       </div>
       ${s.url?`<div style="margin-bottom:6px"><a href="${esc(s.url)}" target="_blank" rel="noopener" class="src">${esc(s.url)}</a></div>`:''}
       <div class="txt">${hasText?esc(s.text):'<span class="muted">（尚未附全文）</span>'}</div>
+      ${insightLine}
     </div>`;
   }).join('');
 }
 window.delSample=async id=>{
   if(!fbDelete){toast('資料庫尚未連線，請稍等或重新整理頁面再試');return;}
-  try{ await fbDelete(id); toast('已刪除'); }
+  if(!confirm('確定要刪除這篇樣本嗎？這個動作無法復原。')) return;
+  try{
+    await fbDelete(id);
+    if(editingId===id) resetForm();
+    toast('已刪除');
+  }
   catch(e){ toast('刪除失敗：'+(e.message||e)); }
 };
 function fmt(n){return n>=10000?(n/10000).toFixed(n>=100000?0:1)+'萬':n.toLocaleString();}
