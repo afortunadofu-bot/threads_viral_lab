@@ -3,161 +3,207 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="以真實台灣 Threads 樣本驅動的爆文框架工具：六維度評分、資料自動校正的權重演算法、關鍵字草稿產生器。">
+<meta name="theme-color" content="#ff5a1f">
+<meta property="og:title" content="脆爆文實驗室 · Threads Viral Lab">
+<meta property="og:description" content="用真實樣本反推台灣 Threads 爆文權重，而不是憑空猜的框架。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A5%3C/text%3E%3C/svg%3E">
 <title>脆爆文實驗室 · Threads Viral Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#17130f; --bg2:#1f1913; --panel:#241d16; --panel2:#2b2219;
-    --line:#3a2e22; --line2:#4a3a29;
-    --ink:#f3e9dc; --ink2:#c9b9a5; --ink3:#8f7f6d;
-    --ember:#ff6a2b; --ember2:#ffab5e; --gold:#e8b04b;
-    --good:#77b06b; --warn:#e0a13a; --bad:#d16a5a;
-    --radius:14px;
-    --serif:"Newsreader",serif;
-    --cjk-serif:"Noto Serif TC",serif;
-    --cjk:"Noto Sans TC",sans-serif;
-    --mono:"Space Mono",monospace;
+    --bg:#f6f4ef; --bg2:#efece3; --panel:#ffffff; --panel2:#fdfcf9;
+    --line:#e7e2d6; --line2:#d8d0bd;
+    --ink:#1c1912; --ink2:#453f31; --ink3:#8c8470;
+    --ember:#ff5a1f; --ember2:#c8410a; --gold:#a9740f;
+    --good:#1f8a4c; --warn:#ad7207; --bad:#c33a26;
+    --radius:20px; --radius-md:12px; --radius-sm:8px;
+    --serif:"Plus Jakarta Sans",sans-serif;
+    --cjk-serif:"Noto Sans TC",sans-serif;
+    --cjk:"Noto Sans TC","Plus Jakarta Sans",sans-serif;
+    --mono:"IBM Plex Mono",monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  :focus-visible{outline:2px solid var(--ember);outline-offset:2px;border-radius:4px}
+  .skip-link{position:absolute;left:-999px;top:auto;background:var(--ink);color:#fff;padding:10px 16px;border-radius:0 0 10px 0;z-index:100}
+  .skip-link:focus{left:0;top:0}
   html,body{background:var(--bg);color:var(--ink);font-family:var(--cjk);line-height:1.65;-webkit-font-smoothing:antialiased}
   body{
     background:
-      radial-gradient(900px 500px at 82% -8%, rgba(255,106,43,.14), transparent 60%),
-      radial-gradient(700px 500px at -5% 8%, rgba(232,176,75,.08), transparent 55%),
+      radial-gradient(1100px 560px at 88% -12%, rgba(255,90,31,.09), transparent 55%),
+      radial-gradient(800px 500px at -8% 12%, rgba(169,116,15,.06), transparent 55%),
+      radial-gradient(rgba(28,25,18,.07) 1px, transparent 1.4px) 0 0/22px 22px,
       var(--bg);
     min-height:100vh;padding:0 0 80px;
   }
   .wrap{max-width:860px;margin:0 auto;padding:0 18px}
 
-  header.hero{padding:34px 0 20px;position:relative}
-  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ember2);margin-bottom:10px}
-  h1.title{font-family:var(--cjk-serif);font-weight:900;font-size:clamp(30px,7vw,48px);line-height:1.05;letter-spacing:-.01em}
-  h1.title .en{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--ink2);display:block;font-size:clamp(15px,3.4vw,20px);letter-spacing:0;margin-top:8px}
-  .lede{color:var(--ink2);font-size:14px;margin-top:14px;max-width:620px}
-  .lede b{color:var(--gold);font-weight:700}
+  header.hero{padding:38px 0 22px;position:relative;overflow:hidden}
+  .hero-numeral{position:absolute;top:-34px;right:-14px;font-family:var(--cjk-serif);font-weight:900;
+    font-size:clamp(150px,26vw,260px);line-height:1;color:var(--ember);opacity:.08;pointer-events:none;user-select:none;z-index:0}
+  .kicker{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ember2);margin-bottom:16px;background:#fff0e6;border:1px solid #ffd9c2;padding:5px 12px;border-radius:999px;position:relative;z-index:1}
+  h1.title{font-family:var(--cjk-serif);font-weight:800;font-size:clamp(28px,6.4vw,42px);line-height:1.12;letter-spacing:-.02em;color:var(--ink);position:relative;z-index:1}
+  h1.title mark{background:linear-gradient(120deg,rgba(255,90,31,.32) 0%,rgba(255,90,31,.32) 100%);background-repeat:no-repeat;background-size:100% 42%;background-position:0 86%;color:inherit;padding:0 1px}
+  h1.title .en{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--ink3);display:block;font-size:clamp(14px,3vw,16px);letter-spacing:0;margin-top:10px}
+  .lede{color:var(--ink2);font-weight:500;font-size:14px;margin-top:16px;max-width:600px;line-height:1.75;position:relative;z-index:1}
+  .lede b{color:var(--ink);font-weight:700}
 
   /* tabs */
-  nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 0 4px;position:sticky;top:0;z-index:20;
-    background:linear-gradient(var(--bg) 70%,transparent);margin-top:14px;-webkit-overflow-scrolling:touch}
+  nav.tabs{display:flex;gap:3px;overflow-x:auto;padding:4px;position:sticky;top:14px;z-index:20;
+    background:var(--bg2);border:1px solid var(--line);border-radius:13px;margin-top:16px;-webkit-overflow-scrolling:touch}
   nav.tabs::-webkit-scrollbar{display:none}
-  .tab{flex:0 0 auto;padding:9px 15px;border:1px solid var(--line);border-radius:999px;background:var(--panel);
-    color:var(--ink3);font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.18s}
-  .tab:hover{color:var(--ink2);border-color:var(--line2)}
-  .tab.active{background:linear-gradient(135deg,var(--ember),var(--gold));color:#231407;border-color:transparent;font-weight:700;box-shadow:0 4px 18px rgba(255,106,43,.28)}
+  .tab{flex:1 0 auto;padding:9px 15px;border:none;border-radius:10px;background:transparent;
+    color:var(--ink3);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;font-family:var(--cjk);
+    display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .tab:hover{color:var(--ink)}
+  .tab.active{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(28,25,18,.06),0 1px 6px rgba(28,25,18,.06)}
 
   section.panel{display:none;animation:fade .35s ease}
   section.panel.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-top:14px}
-  .card h2{font-family:var(--cjk-serif);font-weight:600;font-size:19px;margin-bottom:4px}
-  .card h2 .n{font-family:var(--mono);color:var(--ember);font-size:13px;margin-right:8px}
-  .card .sub{color:var(--ink3);font-size:12.5px;margin-bottom:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:16px;box-shadow:0 1px 2px rgba(28,25,18,.03)}
+  .card h2{font-family:var(--cjk-serif);font-weight:700;font-size:17px;margin-bottom:5px;letter-spacing:-.01em;color:var(--ink)}
+  .card h2 .n{font-family:var(--mono);color:#fff;background:var(--ember);font-size:11px;font-weight:700;margin-right:9px;padding:3px 8px;border-radius:var(--radius-sm)}
+  .card .sub{color:var(--ink3);font-size:12.5px;margin-bottom:14px;line-height:1.6}
   .muted{color:var(--ink3);font-size:12.5px}
-  .src{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.02em}
+  .src{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.01em}
 
-  .dimrow{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
-  .dimrow:first-of-type{border-top:none}
-  .dimtag{font-family:var(--mono);font-size:10px;color:var(--gold);border:1px solid var(--line2);border-radius:6px;padding:2px 7px;flex:0 0 auto;margin-top:2px}
+  .dimrow{display:flex;align-items:flex-start;gap:13px;padding:13px 0;border-top:1px solid var(--line)}
+  .dimrow:first-of-type{border-top:none;padding-top:2px}
+  .dimtag{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--ember2);background:#fff0e6;border:1px solid #ffd9c2;border-radius:var(--radius-sm);padding:3px 8px;flex:0 0 auto;margin-top:2px}
   .dimrow .d-body{flex:1}
-  .dimrow b{font-weight:700;color:var(--ink)}
-  .dimrow p{font-size:13px;color:var(--ink2);margin-top:2px}
+  .dimrow b{font-weight:700;color:var(--ink);font-size:14px}
+  .dimrow p{font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.6}
 
-  .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line2);color:var(--ink2);margin:3px 5px 3px 0}
-  .pill.hot{border-color:var(--ember);color:var(--ember2)}
+  .dimgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:6px}
+  .dimcard{position:relative;overflow:hidden;background:var(--panel2);border:1px solid var(--line);
+    border-radius:var(--radius-md);padding:18px 15px 15px;display:flex;flex-direction:column;transition:.18s}
+  .dimcard:hover{border-color:var(--line2);box-shadow:0 3px 12px rgba(28,25,18,.06)}
+  .dimcard .dimnum{position:absolute;top:-10px;right:6px;font-family:var(--mono);font-weight:700;font-size:56px;
+    color:var(--ember);opacity:.13;line-height:1;pointer-events:none;user-select:none}
+  .dimcard .dimnum i{font-style:normal;font-size:.48em}
+  .dimcard .dimicon{font-size:21px;margin-bottom:8px;position:relative;z-index:1}
+  .dimcard b{font-size:14.5px;color:var(--ink);font-weight:700;position:relative;z-index:1}
+  .dimcard p{font-size:12.5px;color:var(--ink2);line-height:1.6;margin-top:5px;position:relative;z-index:1}
+  @media (max-width:600px){.dimgrid{grid-template-columns:1fr}}
 
-  label.fld{display:block;font-size:12.5px;color:var(--ink2);margin:12px 0 6px;font-weight:500}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:4px 11px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--ink2);margin:3px 5px 3px 0}
+  .pill.hot{background:#fff0e6;border-color:#ffd9c2;color:var(--ember2);font-weight:600}
+
+  label.fld{display:block;font-size:12.5px;color:var(--ink2);margin:14px 0 6px;font-weight:600}
   input[type=text],input[type=number],textarea,select{
-    width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--ink);
-    font-family:var(--cjk);font-size:14px;padding:11px 12px;outline:none;transition:.15s}
+    width:100%;background:var(--panel2);border:1px solid var(--line2);border-radius:var(--radius-md);color:var(--ink);
+    font-family:var(--cjk);font-size:14px;padding:11px 13px;outline:none;transition:.15s}
   textarea{resize:vertical;min-height:88px;line-height:1.6}
-  input:focus,textarea:focus,select:focus{border-color:var(--ember);box-shadow:0 0 0 3px rgba(255,106,43,.12)}
+  input:focus,textarea:focus,select:focus{border-color:var(--ember);background:#fff;box-shadow:0 0 0 3px rgba(255,90,31,.1)}
   .row{display:flex;gap:10px;flex-wrap:wrap}
   .row>*{flex:1;min-width:120px}
 
   button.btn{appearance:none;border:none;cursor:pointer;font-family:var(--cjk);font-weight:700;font-size:14px;
-    padding:12px 18px;border-radius:11px;background:linear-gradient(135deg,var(--ember),var(--gold));color:#231407;
-    transition:.16s;box-shadow:0 4px 16px rgba(255,106,43,.25)}
-  button.btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(255,106,43,.36)}
+    padding:12px 19px;border-radius:var(--radius-md);background:var(--ember);color:#fff9f5;
+    transition:.16s;box-shadow:0 2px 10px rgba(255,90,31,.28)}
+  button.btn:hover{background:#ea4e15;transform:translateY(-1px);box-shadow:0 5px 16px rgba(255,90,31,.34)}
   button.btn:disabled{opacity:.5;cursor:wait;transform:none}
-  button.ghost{background:transparent;border:1px solid var(--line2);color:var(--ink2);box-shadow:none;font-weight:500}
-  button.ghost:hover{border-color:var(--ember);color:var(--ember2);transform:none}
-  button.tiny{padding:6px 11px;font-size:12px;border-radius:8px}
+  button.ghost{background:var(--panel);border:1px solid var(--line2);color:var(--ink2);box-shadow:none;font-weight:600}
+  button.ghost:hover{border-color:var(--ink3);color:var(--ink);background:var(--bg2);transform:none}
+  button.tiny{padding:6px 12px;font-size:12px;border-radius:var(--radius-sm)}
 
   /* score ring */
   .score-wrap{display:flex;align-items:center;gap:16px;margin:6px 0 4px}
   .ring{--v:0;width:70px;height:70px;border-radius:50%;flex:0 0 auto;position:relative;
-    background:conic-gradient(var(--ember) calc(var(--v)*1%), #2c231a 0);display:grid;place-items:center}
-  .ring::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--panel2)}
+    background:conic-gradient(var(--ember) calc(var(--v)*1%), var(--bg2) 0);display:grid;place-items:center}
+  .ring::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--panel)}
   .ring b{position:relative;z-index:1;font-family:var(--mono);font-size:20px;font-weight:700;color:var(--ink)}
   .score-label{font-size:13px;color:var(--ink2)}
-  .score-label .big{font-family:var(--cjk-serif);font-weight:600;font-size:16px;color:var(--ink);display:block}
+  .score-label .big{font-family:var(--cjk-serif);font-weight:700;font-size:16px;color:var(--ink);display:block;margin-bottom:2px}
 
-  .bar{height:7px;border-radius:4px;background:#2c231a;overflow:hidden;margin-top:5px}
-  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--ember),var(--gold));border-radius:4px;transition:width .5s}
-  .barline{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-top:10px}
+  .bar{height:7px;border-radius:4px;background:var(--bg2);overflow:hidden;margin-top:6px}
+  .bar>i{display:block;height:100%;background:var(--ember);border-radius:4px;transition:width .5s}
+  .barline{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-top:11px}
   .barline .v{font-family:var(--mono);color:var(--ink2);font-size:11px}
 
-  .sample{border:1px solid var(--line);border-radius:11px;padding:12px;margin-top:10px;background:var(--bg2)}
-  .sample .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:7px}
+  .sample{border:1px solid var(--line);border-radius:var(--radius-md);padding:14px;margin-top:11px;background:var(--panel2)}
+  .sample .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
   .sample .txt{font-size:13px;color:var(--ink2);white-space:pre-wrap;word-break:break-word;max-height:88px;overflow:hidden;position:relative}
-  .stat{font-family:var(--mono);font-size:11px;color:var(--ink2);background:#2c231a;border-radius:6px;padding:2px 8px}
-  .stat.v{color:var(--ember2)}
+  .stat{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--ink2);background:var(--bg2);border-radius:var(--radius-sm);padding:3px 9px}
+  .stat.v{color:var(--ember2);background:#fff0e6;font-weight:600}
 
-  .variant{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;background:linear-gradient(180deg,var(--panel2),var(--panel))}
-  .variant .post{white-space:pre-wrap;font-size:14.5px;line-height:1.7;color:var(--ink)}
-  .variant .why{font-size:12px;color:var(--ink3);margin-top:9px;border-top:1px dashed var(--line2);padding-top:9px}
+  .variant{border:1px solid var(--line);border-radius:var(--radius-md);padding:16px;margin-top:13px;background:var(--panel);box-shadow:0 1px 3px rgba(28,25,18,.04)}
+  .variant .post{white-space:pre-wrap;font-size:14.5px;line-height:1.75;color:var(--ink)}
+  .variant .why{font-size:12px;color:var(--ink3);margin-top:10px;border-top:1px dashed var(--line2);padding-top:10px;line-height:1.6}
   .variant .why b{color:var(--gold)}
 
-  .conf{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;display:inline-block}
-  .conf.low{background:rgba(209,106,90,.15);color:var(--bad)}
-  .conf.mid{background:rgba(224,161,58,.15);color:var(--warn)}
-  .conf.high{background:rgba(119,176,107,.15);color:var(--good)}
+  .conf{font-family:var(--mono);font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;display:inline-block}
+  .conf.low{background:#fdeceb;color:var(--bad)}
+  .conf.mid{background:#fdf3e0;color:var(--warn)}
+  .conf.high{background:#e8f6ee;color:var(--good)}
 
-  .empty{text-align:center;color:var(--ink3);padding:26px 10px;font-size:13px}
-  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);
-    border:1px solid var(--line2);color:var(--ink);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;
-    transition:.3s;z-index:50;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  .empty{text-align:center;color:var(--ink3);padding:30px 10px;font-size:13px}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);
+    border:1px solid var(--ink);color:#fdfcf9;padding:11px 19px;border-radius:999px;font-size:13px;opacity:0;
+    transition:.3s;z-index:50;box-shadow:0 10px 30px rgba(28,25,18,.25)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(35,20,7,.35);border-top-color:#231407;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:7px}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:7px}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .hr{height:1px;background:var(--line);margin:14px 0}
-  .note{font-size:12px;color:var(--ink3);background:var(--bg2);border-left:3px solid var(--gold);padding:9px 12px;border-radius:0 8px 8px 0;margin-top:12px;line-height:1.55}
-  a{color:var(--ember2)}
+  .hr{height:1px;background:var(--line);margin:16px 0}
+  .note{font-size:12px;color:var(--ink2);background:var(--bg2);border-left:3px solid var(--ember);padding:10px 13px;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-top:13px;line-height:1.6}
+  a{color:var(--ember2);text-underline-offset:2px}
   .flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+  /* touch targets ≥44px per WCAG 2.5.5 */
+  button.btn,button.ghost:not(.tiny),.tab{min-height:44px}
+  button.tiny{min-height:36px}
+
+  @media (max-width:480px){
+    .wrap{padding:0 14px}
+    header.hero{padding:28px 0 18px}
+    .card{padding:17px;border-radius:16px}
+    .row>*{min-width:100%}
+    nav.tabs{top:8px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  }
 </style>
 </head>
 <body>
+<a href="#main" class="skip-link">跳到主要內容</a>
 <div class="wrap">
 
   <header class="hero">
+    <span class="hero-numeral" aria-hidden="true">爆</span>
     <div class="kicker">Taiwan Threads · Data-Grounded</div>
-    <h1 class="title">脆爆文實驗室<span class="en">A lab for engineering virality, not faking it.</span></h1>
+    <h1 class="title"><mark>脆爆文</mark>實驗室<span class="en">A lab for engineering virality, not faking it.</span></h1>
     <p class="lede">框架來自公開研究（QSearch 3,600 萬則貼文、Meta 官方排名機制、實戰復盤）。<b>演算法由你的真實樣本驅動</b>——貼文越多，權重越準，信心水準即時標示。上限 100 篇。</p>
   </header>
 
-  <nav class="tabs" id="tabs">
-    <button class="tab active" data-tab="framework">框架</button>
-    <button class="tab" data-tab="bank">樣本銀行</button>
-    <button class="tab" data-tab="algo">演算法</button>
-    <button class="tab" data-tab="gen">產生器</button>
-    <button class="tab" data-tab="score">評分器</button>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="工具分頁">
+    <button class="tab active" data-tab="framework" role="tab" aria-selected="true" aria-controls="framework" id="tabbtn-framework"><span aria-hidden="true">📐</span> 框架</button>
+    <button class="tab" data-tab="bank" role="tab" aria-selected="false" aria-controls="bank" id="tabbtn-bank"><span aria-hidden="true">🗂️</span> 樣本銀行</button>
+    <button class="tab" data-tab="algo" role="tab" aria-selected="false" aria-controls="algo" id="tabbtn-algo"><span aria-hidden="true">📊</span> 演算法</button>
+    <button class="tab" data-tab="gen" role="tab" aria-selected="false" aria-controls="gen" id="tabbtn-gen"><span aria-hidden="true">✍️</span> 產生器</button>
+    <button class="tab" data-tab="score" role="tab" aria-selected="false" aria-controls="score" id="tabbtn-score"><span aria-hidden="true">🎯</span> 評分器</button>
   </nav>
 
+  <main id="main">
   <!-- ========== FRAMEWORK ========== -->
-  <section class="panel active" id="framework">
+  <section class="panel active" id="framework" role="tabpanel" aria-labelledby="tabbtn-framework">
     <div class="card">
       <h2><span class="n">01</span>爆文六維度</h2>
       <div class="sub">評分器與產生器都以這六維為骨架。權重為研究預設值，樣本累積後由「演算法」分頁動態校正。</div>
 
-      <div class="dimrow"><span class="dimtag">30%</span><div class="d-body"><b>留言誘因</b><p>開放式提問／選邊站／徵求／接龍／標註朋友。留言權重遠高於讚，是演算法推播的最大指標。</p></div></div>
-      <div class="dimrow"><span class="dimtag">20%</span><div class="d-body"><b>鉤子（前兩行）</b><p>前 15–30 分鐘互動決定觸及，開頭必須短、有懸念或反差，讓人停下不滑掉。</p></div></div>
-      <div class="dimrow"><span class="dimtag">15%</span><div class="d-body"><b>情緒／觀點強度</b><p>中性敘述難擴散；帶明確情緒或立場（愛、氣、傻眼、我覺得）才會引爆討論。</p></div></div>
-      <div class="dimrow"><span class="dimtag">15%</span><div class="d-body"><b>內圈感（台灣限定）</b><p>「有台灣人在嗎」「拜託脆友」啟動在地凝聚力，讓陌生人也覺得「是自己人」。</p></div></div>
-      <div class="dimrow"><span class="dimtag">10%</span><div class="d-body"><b>反差／意外</b><p>文案 vs 畫面落差、突破常理，製造「我怎麼沒想到」的認知誤判。</p></div></div>
-      <div class="dimrow"><span class="dimtag">10%</span><div class="d-body"><b>碎裂化長度</b><p>捨長篇大論，走短、易讀、留白多的碎裂化觀察，留言空間大。</p></div></div>
+      <div class="dimgrid">
+        <div class="dimcard"><span class="dimnum">30<i>%</i></span><span class="dimicon" aria-hidden="true">💬</span><b>留言誘因</b><p>開放式提問／選邊站／徵求／接龍／標註朋友。留言權重遠高於讚，是演算法推播的最大指標。</p></div>
+        <div class="dimcard"><span class="dimnum">20<i>%</i></span><span class="dimicon" aria-hidden="true">🪝</span><b>鉤子（前兩行）</b><p>前 15–30 分鐘互動決定觸及，開頭必須短、有懸念或反差，讓人停下不滑掉。</p></div>
+        <div class="dimcard"><span class="dimnum">15<i>%</i></span><span class="dimicon" aria-hidden="true">😳</span><b>情緒／觀點強度</b><p>中性敘述難擴散；帶明確情緒或立場（愛、氣、傻眼、我覺得）才會引爆討論。</p></div>
+        <div class="dimcard"><span class="dimnum">15<i>%</i></span><span class="dimicon" aria-hidden="true">🇹🇼</span><b>內圈感（台灣限定）</b><p>「有台灣人在嗎」「拜託脆友」啟動在地凝聚力，讓陌生人也覺得「是自己人」。</p></div>
+        <div class="dimcard"><span class="dimnum">10<i>%</i></span><span class="dimicon" aria-hidden="true">⚡</span><b>反差／意外</b><p>文案 vs 畫面落差、突破常理，製造「我怎麼沒想到」的認知誤判。</p></div>
+        <div class="dimcard"><span class="dimnum">10<i>%</i></span><span class="dimicon" aria-hidden="true">✂️</span><b>碎裂化長度</b><p>捨長篇大論，走短、易讀、留白多的碎裂化觀察，留言空間大。</p></div>
+      </div>
     </div>
 
     <div class="card">
@@ -180,21 +226,22 @@
   </section>
 
   <!-- ========== BANK ========== -->
-  <section class="panel" id="bank">
+  <section class="panel" id="bank" role="tabpanel" aria-labelledby="tabbtn-bank">
     <div class="card">
       <h2><span class="n">01</span>新增真實樣本</h2>
       <div class="sub">貼上你親自蒐集、有實際數據的貼文。這是演算法的唯一真實來源——不編造。上限 100 篇。</div>
-      <label class="fld">貼文連結（必填）</label>
+      <label class="fld" for="s-url">貼文連結（必填）</label>
       <input type="text" id="s-url" placeholder="https://www.threads.net/@.../post/...">
-      <label class="fld">貼文全文（選填 — 沒有全文就無法算框架分數／算進演算法權重，只會留紀錄）</label>
+      <label class="fld" for="s-text">貼文全文（選填 — 沒有全文就無法算框架分數／算進演算法權重，只會留紀錄）</label>
       <textarea id="s-text" placeholder="有空再回來貼上原文，分數會更準…（可留空）"></textarea>
       <div class="row">
-        <div><label class="fld">瀏覽數</label><input type="number" id="s-views" placeholder="例：320000"></div>
-        <div><label class="fld">讚</label><input type="number" id="s-likes" placeholder="選填"></div>
-        <div><label class="fld">留言</label><input type="number" id="s-comments" placeholder="選填"></div>
+        <div><label class="fld" for="s-views">瀏覽數</label><input type="number" id="s-views" placeholder="例：320000"></div>
+        <div><label class="fld" for="s-likes">讚</label><input type="number" id="s-likes" placeholder="選填"></div>
+        <div><label class="fld" for="s-comments">留言</label><input type="number" id="s-comments" placeholder="選填"></div>
+        <div><label class="fld" for="s-reposts">轉發</label><input type="number" id="s-reposts" placeholder="選填"></div>
       </div>
       <div class="row">
-        <div><label class="fld">類型</label>
+        <div><label class="fld" for="s-genre">類型</label>
           <select id="s-genre">
             <option value="互助">脆友幫幫忙（互助）</option>
             <option value="反差">意想不到（反差）</option>
@@ -222,7 +269,7 @@
 
 
   <!-- ========== ALGO ========== -->
-  <section class="panel" id="algo">
+  <section class="panel" id="algo" role="tabpanel" aria-labelledby="tabbtn-algo">
     <div class="card">
       <div class="flex-between">
         <h2 style="margin:0"><span class="n">01</span>自我更新演算法</h2>
@@ -235,14 +282,14 @@
   </section>
 
   <!-- ========== GENERATOR ========== -->
-  <section class="panel" id="gen">
+  <section class="panel" id="gen" role="tabpanel" aria-labelledby="tabbtn-gen">
     <div class="card">
       <h2><span class="n">01</span>關鍵字產生器</h2>
       <div class="sub">輸入關鍵字，用框架＋你樣本銀行的高分模式，生成 3 版可直接發的貼文並自動評分。</div>
-      <label class="fld">關鍵字 / 主題</label>
+      <label class="fld" for="g-keyword">關鍵字 / 主題</label>
       <input type="text" id="g-keyword" placeholder="例：租屋踩雷、通勤咖啡、轉職焦慮…">
       <div class="row">
-        <div><label class="fld">走哪一類</label>
+        <div><label class="fld" for="g-genre">走哪一類</label>
           <select id="g-genre">
             <option value="自動">自動（依關鍵字選最合適）</option>
             <option value="互助">脆友幫幫忙（互助）</option>
@@ -251,7 +298,7 @@
             <option value="知識">知識乾貨</option>
             <option value="故事">個人故事</option>
           </select></div>
-        <div><label class="fld">語氣</label>
+        <div><label class="fld" for="g-tone">語氣</label>
           <select id="g-tone">
             <option value="口語廢文">口語廢文感</option>
             <option value="真誠告白">真誠告白</option>
@@ -267,11 +314,11 @@
   </section>
 
   <!-- ========== SCORER ========== -->
-  <section class="panel" id="score">
+  <section class="panel" id="score" role="tabpanel" aria-labelledby="tabbtn-score">
     <div class="card">
       <h2><span class="n">01</span>爆文潛力評分</h2>
       <div class="sub">貼上草稿，依六維度算潛力分數並給具體修改建議。規則式即時運算，不需連線。</div>
-      <label class="fld">你的草稿</label>
+      <label class="fld" for="sc-text">你的草稿</label>
       <textarea id="sc-text" placeholder="貼上要評分的貼文…"></textarea>
       <div style="margin-top:12px" class="flex-between">
         <button class="btn" id="score-btn">評分</button>
@@ -282,60 +329,69 @@
       <div id="ai-critique-out"></div>
     </div>
   </section>
+  </main>
 
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-
-/* ============ Firebase 設定 — 換成你自己 Firebase 專案的值 ============ */
-/* Firebase Console → 專案設定 → 一般 → 「你的應用程式」→ SDK 設定與程式碼 */
-const firebaseConfig = {
-  apiKey: "AIzaSyDoJPxKj8apFiT6RjY-tFjy9nPS1hPU9Jo",
-  authDomain: "threads-viral-lab.firebaseapp.com",
-  projectId: "threads-viral-lab",
-  storageBucket: "threads-viral-lab.firebasestorage.app",
-  messagingSenderId: "826476300982",
-  appId: "1:826476300982:web:a50bc78a9b75c82157b417",
-  measurementId: "G-0W9QD6WYDC"
-};
-
-const fbApp = initializeApp(firebaseConfig);
-const db = getFirestore(fbApp);
-const samplesCol = collection(db, "samples");
-
-/* ============ storage & state ============ */
+/* ============ shared state (available immediately, no Firebase dependency) ============ */
 let SAMPLES=[];
+let fbAdd=null, fbDelete=null, fbReady=false;
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
 
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
 
-// 即時監聽 Firestore：任何人新增/刪除樣本，所有正在開這個頁面的人都會同步看到
-function loadSamples(){
-  const q = query(samplesCol, orderBy('createdAt','desc'), limit(100));
-  onSnapshot(q, snap=>{
-    SAMPLES = snap.docs.map(d=>({id:d.id, ...d.data()}));
+/* ============ Firebase — loaded dynamically so a failure here (blocked CDN,
+   network hiccup, ad-blocker) can never take down tabs/scorer/generator too ============ */
+(async()=>{
+  try{
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js");
+    const { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit } =
+      await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js");
+
+    /* 換成你自己 Firebase 專案的值：Firebase Console → 專案設定 → 一般 → 你的應用程式 */
+    const firebaseConfig = {
+      apiKey: "AIzaSyDoJPxKj8apFiT6RjY-tFjy9nPS1hPU9Jo",
+      authDomain: "threads-viral-lab.firebaseapp.com",
+      projectId: "threads-viral-lab",
+      storageBucket: "threads-viral-lab.firebasestorage.app",
+      messagingSenderId: "826476300982",
+      appId: "1:826476300982:web:a50bc78a9b75c82157b417",
+      measurementId: "G-0W9QD6WYDC"
+    };
+    const fbApp = initializeApp(firebaseConfig);
+    const db = getFirestore(fbApp);
+    const samplesCol = collection(db, "samples");
+
+    fbAdd = sample => addDoc(samplesCol, {...sample, createdAt: Date.now()});
+    fbDelete = id => deleteDoc(doc(db,"samples",id));
+
+    // 即時監聽：任何人新增/刪除樣本，所有正在開這個頁面的人都會同步看到
+    const q = query(samplesCol, orderBy('createdAt','desc'), limit(100));
+    onSnapshot(q, snap=>{
+      SAMPLES = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      fbReady=true;
+      renderBank();renderAlgo();
+    }, err=>{
+      console.error(err);
+      toast('連不到資料庫，請確認 Firebase 設定與安全規則');
+      renderBank();renderAlgo();
+    });
+  }catch(e){
+    console.error('Firebase 載入失敗',e);
+    toast('資料庫元件載入失敗，樣本銀行暫時無法使用（其他分頁不受影響）');
     renderBank();renderAlgo();
-  }, err=>{
-    console.error(err);
-    toast('連不到資料庫，請確認 Firebase 設定與安全規則');
-  });
-}
-async function addSampleDoc(sample){
-  await addDoc(samplesCol, {...sample, createdAt: Date.now()});
-}
-async function deleteSampleDoc(id){
-  await deleteDoc(doc(db,"samples",id));
-}
+  }
+})();
 
 /* ============ tabs ============ */
 $$('.tab').forEach(t=>t.onclick=()=>{
-  $$('.tab').forEach(x=>x.classList.remove('active'));
+  $$('.tab').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-selected','false');});
   $$('.panel').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');
+  t.setAttribute('aria-selected','true');
   $('#'+t.dataset.tab).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 });
@@ -393,17 +449,19 @@ $('#add-sample').onclick=async()=>{
   const url=$('#s-url').value.trim();
   const text=$('#s-text').value.trim();
   if(!url){toast('請至少貼上貼文連結');return;}
+  if(!fbAdd){toast('資料庫尚未連線，請稍等或重新整理頁面再試');return;}
   if(SAMPLES.length>=100){toast('已達 100 篇上限，請先刪除舊樣本');return;}
   const views=parseInt($('#s-views').value)||null;
   const btn=$('#add-sample');btn.disabled=true;
   try{
-    await addSampleDoc({
+    await fbAdd({
       url, text, views,
       likes:parseInt($('#s-likes').value)||null,
       comments:parseInt($('#s-comments').value)||null,
+      reposts:parseInt($('#s-reposts').value)||null,
       genre:$('#s-genre').value
     });
-    $('#s-text').value=$('#s-views').value=$('#s-likes').value=$('#s-comments').value=$('#s-url').value='';
+    $('#s-text').value=$('#s-views').value=$('#s-likes').value=$('#s-comments').value=$('#s-reposts').value=$('#s-url').value='';
     toast(text?'已加入（含全文，會算進演算法）':'已加入（僅連結，之後補全文才會算分）');
   }catch(e){
     toast('新增失敗：'+(e.message||e));
@@ -417,16 +475,37 @@ $('#export-samples').onclick=()=>{
 function renderBank(){
   $('#bank-count').textContent=SAMPLES.length+' / 100';
   const list=$('#sample-list');
-  if(!SAMPLES.length){list.innerHTML='<div class="empty">還沒有樣本。<br>貼上你蒐集到的真實爆文，演算法才有東西可學。</div>';return;}
+  if(!SAMPLES.length){
+    list.innerHTML = fbReady
+      ? '<div class="empty">還沒有樣本。<br>貼上你蒐集到的真實爆文，演算法才有東西可學。</div>'
+      : '<div class="empty">連線資料庫中…如果這裡一直沒變化，可能是網路擋住了 Firebase，或安全規則還沒設定。</div>';
+    return;
+  }
   list.innerHTML=SAMPLES.map(s=>{
     const v=s.views?fmt(s.views):'—';
+    const hasViews=!!(s.views&&s.views>0);
+    const rate=n=>(hasViews&&n)?(n/s.views*100):null;
+    const likeR=rate(s.likes), cmtR=rate(s.comments), rpR=rate(s.reposts);
+    const engSum=(s.likes||0)+(s.comments||0)+(s.reposts||0);
+    const engR=(hasViews&&engSum)?(engSum/s.views*100):null;
+    const engagementHtml = hasViews
+      ? [
+          likeR!==null?`<span class="stat">♥ ${likeR.toFixed(1)}%</span>`:'',
+          cmtR!==null?`<span class="stat">💬 ${cmtR.toFixed(1)}%</span>`:'',
+          rpR!==null?`<span class="stat">🔁 ${rpR.toFixed(1)}%</span>`:'',
+          engR!==null?`<span class="stat v">⚡ 互動率 ${engR.toFixed(1)}%</span>`:''
+        ].join('')
+      : [
+          s.likes?`<span class="stat">♥ ${fmt(s.likes)}</span>`:'',
+          s.comments?`<span class="stat">💬 ${fmt(s.comments)}</span>`:'',
+          s.reposts?`<span class="stat">🔁 ${fmt(s.reposts)}</span>`:''
+        ].join('');
     const hasText = !!(s.text&&s.text.trim());
     const sc = hasText?scorePost(s.text).total:null;
     return `<div class="sample">
       <div class="meta">
         <span class="stat v">👁 ${v}</span>
-        ${s.likes?`<span class="stat">♥ ${fmt(s.likes)}</span>`:''}
-        ${s.comments?`<span class="stat">💬 ${fmt(s.comments)}</span>`:''}
+        ${engagementHtml}
         <span class="pill">${s.genre}</span>
         <span class="stat">框架分 ${sc!==null?sc:'—（未附全文）'}</span>
         <span style="margin-left:auto"><button class="ghost tiny" onclick="delSample('${s.id}')">刪除</button></span>
@@ -437,7 +516,8 @@ function renderBank(){
   }).join('');
 }
 window.delSample=async id=>{
-  try{ await deleteSampleDoc(id); toast('已刪除'); }
+  if(!fbDelete){toast('資料庫尚未連線，請稍等或重新整理頁面再試');return;}
+  try{ await fbDelete(id); toast('已刪除'); }
   catch(e){ toast('刪除失敗：'+(e.message||e)); }
 };
 function fmt(n){return n>=10000?(n/10000).toFixed(n>=100000?0:1)+'萬':n.toLocaleString();}
@@ -594,7 +674,8 @@ $('#ai-critique-btn').onclick=async()=>{
 };
 
 /* ============ boot ============ */
-loadSamples();
+// 樣本銀行的即時連線在上方的 Firebase 區塊已自動啟動；框架/評分器/產生器不需等它就能用
+renderBank();renderAlgo();
 
 </script>
 </body>
